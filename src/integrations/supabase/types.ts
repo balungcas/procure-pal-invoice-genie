@@ -115,8 +115,10 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           discount_amount: number | null
+          due_date: string | null
           id: string
           invoice_number: string
+          payment_status: string | null
           subtotal: number
           tax_amount: number | null
           tax_rate: number | null
@@ -129,8 +131,10 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           discount_amount?: number | null
+          due_date?: string | null
           id?: string
           invoice_number: string
+          payment_status?: string | null
           subtotal: number
           tax_amount?: number | null
           tax_rate?: number | null
@@ -143,8 +147,10 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           discount_amount?: number | null
+          due_date?: string | null
           id?: string
           invoice_number?: string
+          payment_status?: string | null
           subtotal?: number
           tax_amount?: number | null
           tax_rate?: number | null
