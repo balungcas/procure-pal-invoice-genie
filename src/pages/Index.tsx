@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
@@ -7,16 +7,85 @@ import ProductTable from "@/components/ProductTable";
 import UploadFile from "@/components/UploadFile";
 import AddProductForm from "@/components/AddProductForm";
 import { Product } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load products from Supabase when component mounts
+    fetchProducts();
+    
+    // Set up real-time subscription for product updates
+    const channel = supabase
+      .channel('public:products')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'products' 
+      }, () => {
+        // Fetch products again when there's any change
+        fetchProducts();
+      })
+      .subscribe();
+
+    return () => {
+      // Clean up subscription
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+      
+      if (error) {
+        throw error;
+      }
+
+      // Map database products to our Product interface
+      const mappedProducts: Product[] = data.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        company: product.company,
+        address: product.address,
+        contactNumber: product.contact_number,
+        email: product.email,
+        costPrice: product.cost_price,
+      }));
+      
+      setProducts(mappedProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUploadSuccess = (newProducts: Product[]) => {
-    setProducts([...products, ...newProducts]);
+    // We don't need to update state manually as the real-time subscription will handle it
+    toast.success(`${newProducts.length} products uploaded successfully`);
   };
 
   const handleProductAdd = (product: Product) => {
-    setProducts([...products, product]);
+    // We don't need to update state manually as the real-time subscription will handle it
+    toast.success('Product added successfully');
+  };
+
+  // Format price to Philippine Peso
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      currencyDisplay: 'symbol'
+    }).format(price);
   };
 
   return (
@@ -53,10 +122,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-dashboard-primary">
-                {new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD'
-                }).format(products.reduce((sum, product) => sum + product.price, 0))}
+                {formatPrice(products.reduce((sum, product) => sum + product.price, 0))}
               </p>
             </CardContent>
           </Card>
@@ -69,7 +135,11 @@ const Index = () => {
             <TabsTrigger value="upload">Upload Data</TabsTrigger>
           </TabsList>
           <TabsContent value="products" className="mt-4">
-            <ProductTable products={products} />
+            {loading ? (
+              <div className="text-center p-8 text-gray-500">Loading products...</div>
+            ) : (
+              <ProductTable products={products} />
+            )}
           </TabsContent>
           <TabsContent value="add" className="mt-4">
             <AddProductForm onProductAdd={handleProductAdd} />

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AddProductFormProps, Product } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
     email: "",
     costPrice: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,10 +57,12 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
+    
+    setIsSubmitting(true);
 
     const newProduct: Product = {
       id: crypto.randomUUID(),
@@ -75,19 +79,41 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
       newProduct.costPrice = parseFloat(formData.costPrice);
     }
 
-    onProductAdd(newProduct);
-    toast.success("Product added successfully");
+    try {
+      // Insert into Supabase
+      const { error } = await supabase.from('products').insert({
+        name: newProduct.name,
+        price: newProduct.price,
+        company: newProduct.company,
+        address: newProduct.address,
+        contact_number: newProduct.contactNumber,
+        email: newProduct.email,
+        cost_price: newProduct.costPrice,
+      });
 
-    // Reset form
-    setFormData({
-      name: "",
-      price: "",
-      company: "",
-      address: "",
-      contactNumber: "",
-      email: "",
-      costPrice: "",
-    });
+      if (error) {
+        throw error;
+      }
+
+      onProductAdd(newProduct);
+      toast.success("Product added successfully");
+
+      // Reset form
+      setFormData({
+        name: "",
+        price: "",
+        company: "",
+        address: "",
+        contactNumber: "",
+        email: "",
+        costPrice: "",
+      });
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -109,7 +135,7 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">Price <span className="text-red-500">*</span></Label>
+              <Label htmlFor="price">Price (₱) <span className="text-red-500">*</span></Label>
               <Input
                 id="price"
                 name="price"
@@ -163,7 +189,7 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="costPrice">Cost Price (Optional)</Label>
+              <Label htmlFor="costPrice">Cost Price (₱) (Optional)</Label>
               <Input
                 id="costPrice"
                 name="costPrice"
@@ -178,8 +204,12 @@ const AddProductForm = ({ onProductAdd }: AddProductFormProps) => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="bg-dashboard-primary hover:bg-dashboard-secondary w-full">
-            Add Product
+          <Button 
+            type="submit" 
+            className="bg-dashboard-primary hover:bg-dashboard-secondary w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Adding Product..." : "Add Product"}
           </Button>
         </CardFooter>
       </form>

@@ -1,4 +1,9 @@
 
+import { Database } from "@/integrations/supabase/types";
+
+// Type for products from Supabase
+export type DbProduct = Database['public']['Tables']['products']['Row'];
+
 export interface Product {
   id: string;
   name: string;
@@ -20,4 +25,28 @@ export interface ProductTableProps {
 
 export interface AddProductFormProps {
   onProductAdd: (product: Product) => void;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  customerName: string;
+  customerEmail?: string;
+  customerAddress?: string;
+  subtotal: number;
+  taxRate?: number;
+  taxAmount?: number;
+  discountAmount?: number;
+  totalAmount: number;
+  createdAt?: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  invoiceId: string;
+  productId: string;
+  product?: Product;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
 }

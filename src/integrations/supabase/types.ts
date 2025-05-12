@@ -63,6 +63,135 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          invoice_id: string
+          product_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invoice_id: string
+          product_id: string
+          quantity?: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invoice_id?: string
+          product_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          created_at: string | null
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string
+          discount_amount: number | null
+          id: string
+          invoice_number: string
+          subtotal: number
+          tax_amount: number | null
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name: string
+          discount_amount?: number | null
+          id?: string
+          invoice_number: string
+          subtotal: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          discount_amount?: number | null
+          id?: string
+          invoice_number?: string
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          address: string
+          company: string
+          contact_number: string
+          cost_price: number | null
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          company: string
+          contact_number: string
+          cost_price?: number | null
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          company?: string
+          contact_number?: string
+          cost_price?: number | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           code: string | null

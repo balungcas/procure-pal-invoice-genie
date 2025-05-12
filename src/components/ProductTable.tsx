@@ -48,11 +48,12 @@ const ProductTable = ({ products }: ProductTableProps) => {
     setSortConfig({ key, direction });
   };
 
-  // Format price to currency
+  // Format price to Philippine Peso currency
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-PH', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'PHP',
+      currencyDisplay: 'symbol'
     }).format(price);
   };
 
@@ -84,7 +85,7 @@ const ProductTable = ({ products }: ProductTableProps) => {
                   className="cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("price")}
                 >
-                  Price
+                  Price (₱)
                 </TableHead>
                 <TableHead
                   className="cursor-pointer hover:bg-gray-50"

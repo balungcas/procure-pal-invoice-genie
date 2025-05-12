@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { FileUploadProps, Product } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 const UploadFile = ({ onUploadSuccess }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -34,23 +36,44 @@ const UploadFile = ({ onUploadSuccess }: FileUploadProps) => {
     }
   };
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     if (!file.name.endsWith('.csv')) {
       toast.error('Please upload a CSV file');
       return;
     }
     
+    setIsProcessing(true);
     const reader = new FileReader();
     
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const text = e.target?.result as string;
         const products = parseCSV(text);
+        
+        // Save products to Supabase
+        const supabaseProducts = products.map(product => ({
+          name: product.name,
+          price: product.price,
+          company: product.company,
+          address: product.address,
+          contact_number: product.contactNumber,
+          email: product.email,
+          cost_price: product.costPrice,
+        }));
+
+        const { error } = await supabase.from('products').insert(supabaseProducts);
+        
+        if (error) {
+          throw error;
+        }
+
         onUploadSuccess(products);
         toast.success(`Successfully imported ${products.length} products`);
       } catch (error) {
+        console.error('Error processing file:', error);
         toast.error('Error processing file. Please check the format.');
-        console.error(error);
+      } finally {
+        setIsProcessing(false);
       }
     };
     
@@ -119,6 +142,7 @@ const UploadFile = ({ onUploadSuccess }: FileUploadProps) => {
             accept=".csv"
             className="hidden"
             onChange={handleFileChange}
+            disabled={isProcessing}
           />
         </div>
         <div className="mt-3">
@@ -126,6 +150,11 @@ const UploadFile = ({ onUploadSuccess }: FileUploadProps) => {
             CSV must include these headers: name, price, company, address, contactNumber, email
           </p>
         </div>
+        {isProcessing && (
+          <div className="mt-3 text-center text-sm text-blue-600">
+            Processing your file, please wait...
+          </div>
+        )}
       </CardContent>
     </Card>
   );
