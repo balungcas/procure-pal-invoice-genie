@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, List } from 'lucide-react';
-import { ModeToggle } from './ui/mode-toggle';
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 const Navbar = () => {
   return (

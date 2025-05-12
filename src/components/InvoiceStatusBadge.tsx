@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { PaymentStatus } from "@/types";
 
 interface InvoiceStatusBadgeProps {
-  status: PaymentStatus;
+  status: PaymentStatus | undefined;
 }
 
 const InvoiceStatusBadge = ({ status }: InvoiceStatusBadgeProps) => {
-  const getStatusConfig = (status: PaymentStatus) => {
+  const getStatusConfig = (status: PaymentStatus | undefined) => {
     switch (status) {
       case 'paid':
         return { label: 'Paid', variant: 'bg-green-100 text-green-800 hover:bg-green-200' };
