@@ -27,6 +27,8 @@ export interface AddProductFormProps {
   onProductAdd: (product: Product) => void;
 }
 
+export type PaymentStatus = 'paid' | 'not_paid' | 'half_paid' | 'due' | 'overdue';
+
 export interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -39,6 +41,8 @@ export interface Invoice {
   discountAmount?: number;
   totalAmount: number;
   createdAt?: string;
+  paymentStatus?: PaymentStatus;
+  dueDate?: string;
 }
 
 export interface InvoiceItem {
