@@ -15,8 +15,9 @@ const InvoicePreview = ({ invoice, invoiceItems }: InvoicePreviewProps) => {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
     documentTitle: `Invoice-${invoice.invoiceNumber}`,
+    // Fix: Using the contentRef property instead of content
+    contentRef: invoiceRef
   });
 
   // Format price to Philippine Peso currency
