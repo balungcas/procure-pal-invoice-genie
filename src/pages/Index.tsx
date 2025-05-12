@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ProductTable from "@/components/ProductTable";
 import UploadFile from "@/components/UploadFile";
@@ -9,6 +11,7 @@ import AddProductForm from "@/components/AddProductForm";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -126,6 +129,15 @@ const Index = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+        
+        <div className="mb-6">
+          <Link to="/create-invoice">
+            <Button className="flex items-center">
+              <FileText className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Button>
+          </Link>
         </div>
         
         <Tabs defaultValue="products" className="mb-6">
